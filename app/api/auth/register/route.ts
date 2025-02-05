@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db";
 import User from "@/models/User";
-import { headers } from "next/headers";
 
 export async function POST(request: NextRequest) {
   try {
@@ -40,11 +39,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-
-// const res = fetch("api/auth/register", {
-//     method: "POST",
-//     headers:{"Content-Type": "application/json"},
-//     body: JSON.stringify({email, password})
-// })
-
-// res.json();
