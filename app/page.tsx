@@ -1,9 +1,9 @@
 "use client";
 
-import { apiClient } from "@/lib/api-client";
+import React, { useEffect, useState } from "react";
+import VideoFeed from "./components/VideoFeed";
 import { IVideo } from "@/models/Video";
-import Image from "next/image";
-import { useEffect, useState } from "react";
+import { apiClient } from "@/lib/api-client";
 
 export default function Home() {
   const [videos, setVideos] = useState<IVideo[]>([]);
@@ -14,14 +14,17 @@ export default function Home() {
         const data = await apiClient.getVideos();
         setVideos(data);
       } catch (error) {
-        console.error("Error fetching videos", error);
+        console.error("Error fetching videos:", error);
       }
     };
+
+    fetchVideos();
   }, []);
 
   return (
-    <>
-      <div>I am Home Page!</div>
-    </>
+    <main className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-8">ImageKit ReelsPro</h1>
+      <VideoFeed videos={videos} />
+    </main>
   );
 }

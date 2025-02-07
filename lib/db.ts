@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error("Please define mongodb uri in env file!");
+  throw new Error(
+    "Please define the MONGODB_URI environment variable inside .env.local"
+  );
 }
 
 let cached = global.mongoose;
@@ -30,9 +32,9 @@ export async function connectToDatabase() {
 
   try {
     cached.conn = await cached.promise;
-  } catch (error) {
+  } catch (e) {
     cached.promise = null;
-    throw error;
+    throw e;
   }
 
   return cached.conn;

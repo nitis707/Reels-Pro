@@ -1,49 +1,53 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { connectToDatabase } from "@/lib/db";
 import Video, { IVideo } from "@/models/Video";
-import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
     await connectToDatabase();
     const videos = await Video.find({}).sort({ createdAt: -1 }).lean();
+
     if (!videos || videos.length === 0) {
       return NextResponse.json([], { status: 200 });
     }
 
     return NextResponse.json(videos);
   } catch (error) {
+    console.error("Error fetching videos:", error);
     return NextResponse.json(
       { error: "Failed to fetch videos" },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }
 
-export async function POST(request: NextResponse) {
+export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
+
     if (!session) {
-      return NextResponse.json({ error: "Unauthorized!" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     await connectToDatabase();
-
     const body: IVideo = await request.json();
 
+    // Validate required fields
     if (
       !body.title ||
       !body.description ||
       !body.videoUrl ||
-      !body.thumbnaiUrl
+      !body.thumbnailUrl
     ) {
       return NextResponse.json(
-        { error: "Missing required fields!" },
+        { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
+    // Create new video with default values
     const videoData = {
       ...body,
       controls: body.controls ?? true,
@@ -57,9 +61,10 @@ export async function POST(request: NextResponse) {
     const newVideo = await Video.create(videoData);
     return NextResponse.json(newVideo);
   } catch (error) {
+    console.error("Error creating video:", error);
     return NextResponse.json(
-      { error: "Failed to create a  video" },
-      { status: 200 }
+      { error: "Failed to create video" },
+      { status: 500 }
     );
   }
 }
